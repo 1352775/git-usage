@@ -62,7 +62,7 @@ summary(LinearModel)
 #Sourcing function for making a plot of the linear model
 source("functions/plot_flipper_vs_body_mass_figure.R")
 
-#Creating figure
+#Plotting figure
 LinearModelplot <- plot_flipper_vs_body_mass_figure(penguins_flipper_vs_body_mass)
 
 #Viewing figure
