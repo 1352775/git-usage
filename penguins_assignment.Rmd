@@ -54,8 +54,8 @@ head(penguins_flipper_vs_body_mass)
 #Fitting a linear model to analyse the relationship between body mass and flipper length
 LinearModel <- lm(flipper_length_mm ~ body_mass_g, penguins_flipper_vs_body_mass)
 
-#Looking at the results of the linear model
-summary(LinearModel)
+#Carrying out an ANOVA test on the linear model
+anova(LinearModel)
 ```
 
 ```{r Question 4 Plotting figure, echo = FALSE, message = FALSE, warning = FALSE, results = 'hide'}
