@@ -139,7 +139,7 @@ make_scatter_plot <- function(penguins_now_clean){
 ```
 
 save_plot_svg
-```{r Save plot as svg file}
+```{r Save plot as svg file, eval = FALSE}
 save_plot_svg <- function(penguins_flipper_vs_body_mass, 
                           filename, size, scaling){
   size_inches = size/2.54
