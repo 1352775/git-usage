@@ -76,4 +76,78 @@ save_plot_svg(penguins_flipper_vs_body_mass,
                       "figures/fig01_vector.svg", 
                       size = 14, scaling = 0.93)
 ```
+## Functions
+libraries
+```{r Libraries, eval = FALSE}
+library(palmerpenguins)
+library(ggplot2)
+library(tidyr)
+library(svglite)
+library(ragg)
+suppressPackageStartupMessages(library(janitor))
+suppressPackageStartupMessages(library(dplyr)) 
+```
+
+cleaning
+```{r Cleaning, eval = FALSE}
+cleaning <- function(data_raw){
+  data_raw %>%
+    clean_names() %>%
+    remove_empty(c("rows", "cols")) %>%
+    select(-starts_with("delta")) %>%
+    select(-comments) %>%
+  rename(bill_length_mm = culmen_length_mm, bill_depth_mm = culmen_depth_mm)
+}
+```
+
+remove_NAs_from_flipper_length
+```{r Remove NAs from flipper length, eval = FALSE}
+remove_NAs_from_flipper_length <- function(data_clean){
+  data_clean %>%
+    filter(!is.na(flipper_length_mm)) %>%
+    select(species, flipper_length_mm, body_mass_g)
+}
+```
+
+plot_flipper_vs_body_mass_figure
+```{r Plot flipper length vs body mass figure, eval = FALSE}
+plot_flipper_vs_body_mass_figure <- function(penguins_flipper_vs_body_mass){
+  penguins_flipper_vs_body_mass %>% 
+    ggplot(aes(x = body_mass_g, y = flipper_length_mm)) +
+    geom_point(aes(color = species), width = 0.3, show.legend = TRUE) +
+    scale_color_manual('Penguin Species', values = c("#E69F00","#56B4E9","#009E73")) +
+    geom_smooth(method = "lm", col = "#000000") +
+    labs(x = "Body mass (g)", y = "Flipper length (mm)") +
+    ggtitle("Relationship between Body Mass and Flipper Length") +
+    theme_bw()
+}
+```
+
+make_scatter_plot
+```{r Make scatter plot, eval = FALSE}
+make_scatter_plot <- function(penguins_now_clean){
+  penguins_now_clean %>% 
+    ggplot(aes(x = body_mass_g, y = flipper_length_mm)) +
+    geom_point(aes(color = species), width = 0.7, show.legend = TRUE) +
+    scale_color_manual(values = c("darkgreen","green","cyan4")) +
+    labs(x = "Body Mass",
+         y = "Flipper Length") +
+    xlim(1000,7000) +
+    ylim(100,300)
+}
+```
+
+save_plot_svg
+```{r Save plot as svg file}
+save_plot_svg <- function(penguins_flipper_vs_body_mass, 
+                          filename, size, scaling){
+  size_inches = size/2.54
+  svglite(filename, width   = size_inches, 
+          height  = size_inches, 
+          scaling = scaling)
+  penguins_flipper_vs_body_mass <- plot_flipper_vs_body_mass_figure(penguins_flipper_vs_body_mass)
+  print(penguins_flipper_vs_body_mass)
+  dev.off()
+}
+```
 
