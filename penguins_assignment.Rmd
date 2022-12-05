@@ -76,6 +76,7 @@ save_plot_svg(penguins_flipper_vs_body_mass,
                       "figures/fig01_vector.svg", 
                       size = 14, scaling = 0.93)
 ```
+
 ## Functions
 libraries
 ```{r Libraries, eval = FALSE}
