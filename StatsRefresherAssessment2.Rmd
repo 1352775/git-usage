@@ -1,0 +1,171 @@
+---
+title: "StatsRefresherAssessment"
+candidate ID: '1053835'
+date: "2022-11-29"
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width=8, fig.height=5)
+```
+
+```{r Setting working directory and loading packages, include = FALSE}
+#Setting working directory
+setwd("~/StatsRefresherAssessment")
+
+#Loading packages
+library(ggplot2)
+library(Sleuth3)
+library(arm)
+library(dplyr)
+library(ragg)
+```
+
+# Question 2
+```{r Question 2 Code, include = FALSE}
+#Creating a new variable for the log transformed data
+case1402$log_William <- log(case1402$William)
+
+#Fitting a linear model
+WilliamStressandSO2 <- lm(log_William ~ Stress*SO2 + Stress + SO2, case1402)
+```
+
+###### **Formula for the linear model:**  
+$$Yield = Stress*SO2 + Stress + SO2 + constant$$
+**Diagnostic plots:**
+
+```{r Question 2 Generating plots, echo = FALSE}
+#Generating diagnostic plots
+plot(WilliamStressandSO2)
+```
+
+**Evaluation of diagnostic plots:**    
+
+*Residual plot*   
+The appearance of the residual plot suggests that the assumption of homogeneity of variance has been met. This is because for each fitted value, the observations are spaced fairly evenly apart from one another, and they seem to be spread evenly above and below the regression line.
+
+*Normal Quantile plot*   
+Most of the points in the normal quantile plot lie along a straight line, indicating that the data is normally distributed. This is because most of the observations match with their corresponding expected quantile, where these expected quantiles are taken from a standard normal distribution. 
+
+*Scale-Location plot*  
+The appearance of the scale-location plot suggests that the assumption of homogeneity of variance has been met. This is because the line is fairly horizontal across the plot, indicating that the spread of the residuals is roughly equal across all of the fitted values.
+
+*Residuals vs Leverage plot*  
+The residuals vs leverage plot shows that none of the points fall outside of Cook's distance, showing that there are no influential observations. This means that none of the observations have a high leverage (i.e., they don't have a strong influence on the coefficients of the regression model). Hence, it's unlikely that there are any outliers in the data.
+\newpage
+
+# Question 3
+```{r Question 3 Fitting linear model, include = FALSE}
+#Fitting a linear model
+WilliamSO2 <- lm(log_William ~ SO2, case1402)
+```
+
+###### **Formula for the linear model:**
+$$Yield = SO2 + constant$$
+**Figure:**
+
+```{r Question 3 Plotting figure, echo = FALSE, message = FALSE, results = 'hide'}
+#Plotting figure
+SO2_figure <- ggplot(case1402, aes(x = SO2, y = log_William)) + 
+  geom_point() +
+  geom_smooth(method = "lm", col = "red") +
+  labs(x = "SO2 concentration", y = "Yield (log transformed)") +
+  ggtitle("Figure 1. Effect of SO2 concentration on yield of soy 
+beans") +
+  theme_bw()
+
+#Changing font sizes in figure
+SO2_figure_2 <- SO2_figure + theme(axis.title.y = element_text(size = 17, margin = margin(t = 0, r = 20, b = 0, l = 0)),
+                                   axis.title.x = element_text(size = 17, margin = margin(t = 20, r = 0, b = 0, l = 0)),
+                                   plot.title = element_text(size = 20, margin = margin(t = 0, r = 0, b = 20, l = 0)),
+                                   axis.text = element_text(size = 15))
+
+#Viewing figure
+SO2_figure_2
+```
+
+
+\newpage
+
+# Question 4
+```{r Question 4 Fitting linear model, include = FALSE}
+#Fitting a linear model
+WilliamStress <- lm(log_William ~ Stress, case1402)
+```
+
+```{r Question 4 Creating data frame, include = FALSE}
+#Creating new data frame for statistics
+Stress_statistics <- case1402 %>% 
+  group_by(Stress) %>%
+  summarise(mean_stress = mean(log_William, na.rm = TRUE), 
+            sd_stress = sd(log_William, na.rm = TRUE)) %>%
+  mutate(SE = sd_stress/sqrt(15), 
+         CI_95_high = mean_stress + SE*1.96, 
+         CI_95_low = mean_stress - SE*1.96)
+```
+
+###### **Formula for the linear model:**  
+$$Yield = Stress + constant$$
+**Figure:**
+
+```{r Question 4 Plotting Figure, echo = FALSE}
+#Plotting figure
+Stress_figure <- ggplot(Stress_statistics, aes(x = Stress, y = mean_stress, ymin = CI_95_low, ymax = CI_95_high)) +
+  geom_point() + 
+  geom_errorbar(width = 0.1) + 
+  labs(x = "Water stress treatment",
+       y = "Mean yield (log transformed)") +
+  ggtitle("Figure 2. Mean yield of stressed and well-watered 
+soy beans") +
+  theme_bw()
+
+#Changing font sizes in figure
+Stress_figure_2 <- Stress_figure + theme(axis.title.y = element_text(size = 17, margin = margin(t = 0, r = 20, b = 0, l = 0)),
+                                   axis.title.x = element_text(size = 17, margin = margin(t = 20, r = 0, b = 0, l = 0)),
+                                   plot.title = element_text(size = 20, margin = margin(t = 0, r = 0, b = 20, l = 0)),
+                                   axis.text = element_text(size = 15))
+
+#Viewing figure
+Stress_figure_2
+```
+\newpage
+
+# Question 5
+```{r Question 5 ANOVA test on linear model for Stress and SO2, include = FALSE}
+#ANOVA test on linear model for Stress and SO2
+anova(WilliamStressandSO2)
+```
+
+###### **Abstract**
+Abiotic factors such as pollutants and precipitation are known to influence crop yields. In this study, the main effects of sulphur dioxide (SO2) concentration and water stress on yields of the William variety of soy beans were analysed using linear regression models. Additionally, linear regression and analysis of variance were used to investigate a possible interaction between SO2 concentration and water stress in their effect on soy bean yields.
+
+###### **1. Background**
+Scientists are interested in understanding how abiotic factors and their interactions influence the growth of crops. One of the aims of this research is to advance knowledge on how crop yields can be maximised by optimising the conditions they are grown in and by mitigating environmental risks. The importance of this work cannot be underestimated, as global food demand is expected to increase by up to 56% between 2010 and 2050 (Van Dijk et al., 2021). To feed a world population of 9.1 billion in 2050, agricultural production will have to increase by approximately 70% from levels in 2005 (UN FAO, 2009). Finding ways to maximise crop yields will be crucial if this is to be achieved.
+
+###### **2. Methods**
+*2.1 Data Collection*  
+A completely randomised factorial design was used for this experiment. Of 30 open-topped growing chambers containing the William soy bean variety, 15 were watered regularly (well-watered) and 15 were watered infrequently (stressed). Furthermore, each chamber was treated with one of three different concentrations of sulfur dioxide (0, 0.02, or 0.06). After being given time to grow under each treatment, the yield of each chamber was measured in kg/ha. 
+
+*2.2 Data Analysis*  
+The yields of the soy beans were log transformed. A linear regression model was then fitted to analyse the effects of SO2, water stress, and the interaction of these two factors on the yield of soy beans. The formula for this regression model was: Yield = SO2*Stress + SO2 + Stress + constant. An analysis of variance (ANOVA) was then performed to analyse the effects of SO2 and water stress on soy bean yield. 
+
+###### **3. Results**
+An ANOVA test on the linear model for the effects of SO2, water stress, and their interaction revealed that there was not a statistically significant interaction between the effects of water stress and SO2 concentration on soy bean yield (F(5,24)= .043, p= .838). Simple main effects analysis showed that water stress did have a statistically significant effect on soy bean yield (F(1,28)= 4.26, p= .049). Furthermore, simple main effects analysis showed that SO2 concentration also had a statistically significant effect on soy bean yield (F(2,27)= 4.76, p= .038).
+
+Figure 1 shows the linear model for the effect of SO2 concentration on soy bean yield. The figure shows that as SO2 concentration increases, soy bean yield decreases. For instance, the mean log yield of soy bean is 8.25 when the concentration of SO2 is zero, whereas the mean log yield is 8.03 when the concentration of SO2 is 0.06. 
+
+###### **4. Discussion**
+The results of the linear regression analysis revealed that both SO2 and water stress have a negative impact on yields of soy bean. This is most likely because of the detrimental effects that these abiotic factors have on photosynthetic rate, which affects plant growth. For instance, exposure to high concentrations of SO2 has been found to reduce chlorophyll content and disrupt the thylakoid membranes in the chloroplasts (Lee et al., 2017). Meanwhile,  water stress leads to a reduction of the water potential in the leaves, which triggers the stomata to close. This prevents the diffusion of CO2 into the leaves, thereby slowing down photosynthesis (Osakabe et al., 2014). A reduced photosynthetic rate means that fewer photosynthates are produced, and these photosynthates are required for plant growth.
+
+The absence of an interaction effect of SO2 and water stress on soy bean yield could be because the mechanisms by which each factor influences photosynthetic rate are independent. Therefore, a change in one factor would not lead to a change in the effect of the other on crop yield.
+
+\newpage
+###### **Bibliography**
+*Food and Agricultural Organisation of the United Nations* (2009). "How to Feed the World in 2050". [Rome]
+
+Lee, H. et al. (2017) "The relationship between SO2 exposure and plant physiology: A mini review", Horticulture, Environment, and Biotechnology, 58(6), pp. 523-529. doi: 10.1007/s13580-017-0053-0.
+
+Osakabe, Y. et al. (2014) "Response of plants to water stress", Frontiers in Plant Science, 5. doi: 10.3389/fpls.2014.00086.
+
+Van Dijk, M. et al. (2021) "A meta-analysis of projected global food demand and population at risk of hunger for the period 2010–2050", Nature Food, 2(7), pp. 494-501. doi: 10.1038/s43016-021-00322-9.
